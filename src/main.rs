@@ -4,7 +4,6 @@ use std::{
     path::Path,
 };
 
-use colored::Colorize;
 use clipboard::{ClipboardContext, ClipboardProvider};
 
 fn parse_tree_line(line: &str) -> Result<(usize, String, bool), &'static str> {

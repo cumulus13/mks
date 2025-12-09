@@ -4,7 +4,7 @@ path = "src/main.rs"
 
 [package]
 name = "mks"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = [ "Hadi Cahyadi <cumulus13@gmail.com>",]
 description = "Paste tree from clipboard"
@@ -19,4 +19,3 @@ exclude = [ "mks.exe", "mks.sublime-project", "mks.sublime-workspace", "target/"
 
 [dependencies]
 clipboard = "0.5"
-colored = "3.0.0"
