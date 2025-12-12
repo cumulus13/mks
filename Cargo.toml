@@ -4,7 +4,7 @@ bin = [
 
 [package]
 name = "mks"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2021"
 authors = [
     "Hadi Cahyadi <cumulus13@gmail.com>",

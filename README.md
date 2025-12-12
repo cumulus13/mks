@@ -6,6 +6,17 @@ Perfect for quickly scaffolding projects from shared diagrams, documentation, or
 
 ---
 
+## 🎦 Demo
+
+<div align="center">
+  <a href="https://youtu.be/1BrUiQWi47Y">
+    <img src="https://i9.ytimg.com/vi_webp/1BrUiQWi47Y/mqdefault.webp?sqp=CLyA8MkG&rs=AOn4CLDK-YxnbjSj94eEnGR5YpQSSVmK1g" alt="How to use mks - tree2 -pt" style="width:100%;">
+  </a>
+  <br>
+  <a href="https://youtu.be/1BrUiQWi47Y">Demo</a>
+</div>
+
+
 ## ✅ Features
 
 - **Input from clipboard** or **text file**
