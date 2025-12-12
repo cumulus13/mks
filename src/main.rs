@@ -139,10 +139,14 @@ fn create_structure(lines: &[String], debug: bool) -> Result<(), Box<dyn std::er
             if is_dir {
                 fs::create_dir_all(&name)?;
                 path_stack.push(name.clone());
-                println!("📁 Root: {}", name);
+                if debug {
+                    println!("📁 Root: {}", name);
+                }
             } else {
                 File::create(&name)?;
-                println!("📄 Root file: {}", name);
+                if debug {
+                    println!("📄 Root file: {}", name);
+                }
             }
             continue;
         }
@@ -172,11 +176,15 @@ fn create_structure(lines: &[String], debug: bool) -> Result<(), Box<dyn std::er
         if is_dir {
             fs::create_dir_all(&full_path)?;
             path_stack.push(name);
-            println!("📁 {}", full_path);
+            if debug {
+                println!("📁 {}", full_path);
+            }
         } else {
             fs::create_dir_all(Path::new(&full_path).parent().unwrap())?;
             File::create(&full_path)?;
-            println!("📄 {}", full_path);
+            if debug {
+                println!("📄 {}", full_path);
+            }
         }
 
         if debug {

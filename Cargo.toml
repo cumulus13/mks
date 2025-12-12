@@ -1,21 +1,39 @@
-[[bin]]
-name = "mks"
-path = "src/main.rs"
+bin = [
+    { name = "mks", path = "src/main.rs" },
+]
 
 [package]
 name = "mks"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2021"
-authors = [ "Hadi Cahyadi <cumulus13@gmail.com>",]
+authors = [
+    "Hadi Cahyadi <cumulus13@gmail.com>",
+]
 description = "Paste tree from clipboard"
 license = "MIT"
 repository = "https://github.com/cumulus13/mks"
 homepage = "https://github.com/cumulus13/mks"
 documentation = "https://docs.rs/mks"
 readme = "README.md"
-keywords = [ "clipboard", "monitor", "sqlite", "notifications", "tui",]
-categories = [ "command-line-utilities",]
-exclude = [ "mks.exe", "mks.sublime-project", "mks.sublime-workspace", "target/", ".pt/", "build.bat", "test/",]
+keywords = [
+    "clipboard",
+    "monitor",
+    "sqlite",
+    "notifications",
+    "tui",
+]
+categories = [
+    "command-line-utilities",
+]
+exclude = [
+    "mks.exe",
+    "mks.sublime-project",
+    "mks.sublime-workspace",
+    "target/",
+    ".pt/",
+    "build.bat",
+    "test/",
+]
 
 [dependencies]
 clipboard = "0.5"

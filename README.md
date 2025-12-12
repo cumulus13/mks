@@ -52,8 +52,6 @@ my-app/
     └── style.css
 ```
 
-> ⚠️ **Do not copy from websites, PDFs, or chat apps** — they often corrupt tree characters.
-
 ---
 
 ### 3. Run `mks`
