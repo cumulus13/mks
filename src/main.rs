@@ -1,8 +1,16 @@
+// File: src\main.rs
+// Author: Hadi Cahyadi <cumulus13@gmail.com>
+// Date: 2025-12-13
+// Description: Create Directory Structures from Tree-like Text
+// License: MIT
+
 use std::{
     env,
     fs::{self, File},
     path::Path,
 };
+
+use clap_version_flag::colorful_version;
 
 use clipboard::{ClipboardContext, ClipboardProvider};
 
@@ -12,24 +20,29 @@ fn parse_tree_line(line: &str) -> Result<(usize, String, bool), &'static str> {
         return Err("empty line");
     }
 
-    // Hapus komentar
-    let line = match line.find('#') {
+    // Delete comment
+    // let line = match line.find('#') {
+    //     Some(i) => &line[..i],
+    //     None => line,
+    // }.trim_end();
+    let line = match line.find(|c| c == '#' || c == '←') {
         Some(i) => &line[..i],
         None => line,
     }.trim_end();
+
 
     if line.is_empty() {
         return Err("empty after comment");
     }
 
-    // Extract nama dengan mencari pattern lengkap tree marker
+    // Extract the name by searching for the complete tree marker pattern
     // Pattern: "├── " atau "└── " (branch/corner + 2 horizontal + space)
     let name_part = if let Some(pos) = line.find("├── ") {
         &line[pos + "├── ".len()..]
     } else if let Some(pos) = line.find("└── ") {
         &line[pos + "└── ".len()..]
     } else {
-        // Fallback untuk root atau format lain
+        // Fallback for root or other formats
         line.split_whitespace().last().unwrap_or(line)
     };
 
@@ -50,13 +63,13 @@ fn parse_tree_line(line: &str) -> Result<(usize, String, bool), &'static str> {
         return Err("invalid file name");
     }
 
-    // Hitung indent secara dinamis: hitung KARAKTER (bukan byte) sebelum nama
-    // Cari di mana nama dimulai dalam bentuk character count
+    // Calculate indent dynamically: count CHARACTERS (not bytes) before name
+    // Look for where the name starts in character count form
     let chars_before_name = line.chars()
         .take_while(|c| !name_part.starts_with(&c.to_string()))
         .count();
     
-    // Setiap 4 karakter = 1 level indent
+    // Every 4 characters = 1 indent level
     let indent = chars_before_name / 4;
 
     Ok((indent, name, is_dir))
@@ -71,7 +84,7 @@ fn is_valid_filename(name: &str) -> bool {
         return false;
     }
 
-    // Cek reserved names (Windows)
+    // Check reserved names (Windows)
     let upper = trimmed.to_uppercase();
     let base = upper.split('.').next().unwrap_or(&upper);
     let reserved = [
@@ -83,14 +96,14 @@ fn is_valid_filename(name: &str) -> bool {
         return false;
     }
 
-    // Cek karakter ilegal
+    // Illegal character check
     for c in r#"<>:"/\|?*"#.chars() {
         if name.contains(c) {
             return false;
         }
     }
 
-    // Tidak boleh diakhiri spasi atau titik (Windows)
+    // Cannot end with a space or period (Windows)
     if trimmed.ends_with(' ') || trimmed.ends_with('.') {
         return false;
     }
@@ -151,11 +164,11 @@ fn create_structure(lines: &[String], debug: bool) -> Result<(), Box<dyn std::er
             continue;
         }
 
-        // Sesuaikan stack berdasarkan indent
-        // indent=1 means anak dari root (stack should have 1 item = root)
-        // indent=2 means anak dari level 1 (stack should have 2 items)
+        // Adjust stack based on indent
+        // indent=1 means child of root (stack should have 1 item = root)
+        // indent=2 means child of level 1 (stack should have 2 items)
         if indent > path_stack.len() {
-            // Indent terlalu dalam, stay at current level
+            // Indent too deep, stay at current level
             if debug {
                 eprintln!("⚠️ Warning: indent {} > stack size {}", indent, path_stack.len());
             }
@@ -242,6 +255,8 @@ fn is_valid_structure(lines: &[String]) -> bool {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<String> = env::args().collect();
     let debug = args.contains(&"--debug".to_string());
+    let version = args.contains(&"--version".to_string()) || args.contains(&"-V".to_string());
+    let version_str = colorful_version!();
     
     let (lines, source) = read_input()?;
 
@@ -253,7 +268,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("📋 Read from {} ({} lines)", source, lines.len());
     
     if debug {
-        println!("🐛 Debug mode enabled\n");
+        println!("🪲 Debug mode enabled\n");
+    }
+
+    if version {
+        println!("{}", version_str);
     }
     
     println!("✅ Creating structure...\n");

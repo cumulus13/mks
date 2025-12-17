@@ -4,7 +4,7 @@ bin = [
 
 [package]
 name = "mks"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2021"
 authors = [
     "Hadi Cahyadi <cumulus13@gmail.com>",
@@ -37,3 +37,4 @@ exclude = [
 
 [dependencies]
 clipboard = "0.5"
+clap-version-flag = "1.0.7"
