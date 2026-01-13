@@ -36,6 +36,19 @@ fn parse_tree_line(line: &str) -> Result<(usize, String, bool), &'static str> {
         return Err("empty after comment");
     }
 
+    // FIXED: Check if line only contains tree characters without actual name
+    // Remove all tree drawing characters and whitespace to see if there's content
+    let content_check = line
+        .chars()
+        .filter(|c| {
+            !matches!(c, '│' | '├' | '└' | '─' | '┬' | '┼' | '|' | ' ' | '\t')
+        })
+        .collect::<String>();
+    
+    if content_check.is_empty() {
+        return Err("only tree characters, no name");
+    }
+
     // Extract the name by searching for the complete tree marker pattern
     // Pattern: "├── " atau "└── " (branch/corner + 2 horizontal + space)
     let name_part = if let Some(pos) = line.find("├── ") {
@@ -44,6 +57,15 @@ fn parse_tree_line(line: &str) -> Result<(usize, String, bool), &'static str> {
         &line[pos + "└── ".len()..]
     } else {
         // Fallback for root or other formats
+        // But first check if it's just tree characters
+        let remaining = line.trim_start_matches(|c: char| {
+            matches!(c, '│' | '├' | '└' | '─' | '┬' | '┼' | '|' | ' ' | '\t')
+        });
+        
+        if remaining.is_empty() {
+            return Err("no name after tree characters");
+        }
+        
         line.split_whitespace().last().unwrap_or(line)
     };
 
@@ -59,6 +81,11 @@ fn parse_tree_line(line: &str) -> Result<(usize, String, bool), &'static str> {
         })
         .trim();
 
+    // FIXED: Double check after removing emojis
+    if name_part.is_empty() {
+        return Err("empty after removing emojis");
+    }
+
     let is_dir = name_part.ends_with('/');
     let mut name = if is_dir {
         name_part[..name_part.len() - 1].trim().to_string()
@@ -67,7 +94,13 @@ fn parse_tree_line(line: &str) -> Result<(usize, String, bool), &'static str> {
     };
 
     name = name.trim().to_string();
-    if name.is_empty() || !is_valid_filename(&name) {
+    
+    // FIXED: More strict validation
+    if name.is_empty() {
+        return Err("empty name after processing");
+    }
+    
+    if !is_valid_filename(&name) {
         return Err("invalid file name");
     }
 
@@ -89,6 +122,15 @@ fn is_valid_filename(name: &str) -> bool {
     }
     let trimmed = name.trim();
     if trimmed.is_empty() {
+        return false;
+    }
+
+    // FIXED: Check if name only contains tree drawing characters
+    let has_real_content = trimmed.chars().any(|c| {
+        !matches!(c, '│' | '├' | '└' | '─' | '┬' | '┼' | '|' | ' ' | '\t')
+    });
+    
+    if !has_real_content {
         return false;
     }
 
@@ -144,7 +186,10 @@ fn create_structure(lines: &[String], debug: bool) -> Result<(), Box<dyn std::er
 
     for (idx, line) in lines.iter().enumerate() {
         let parsed = parse_tree_line(line);
-        if let Err(_) = parsed {
+        if let Err(err_msg) = parsed {
+            if debug {
+                println!("[DEBUG] Line {} skipped: {}", idx, err_msg);
+            }
             continue;
         }
 
@@ -159,8 +204,16 @@ fn create_structure(lines: &[String], debug: bool) -> Result<(), Box<dyn std::er
         let names: Vec<String> = name
             .split('&')
             .map(|s| s.trim().to_string())
-            .filter(|s| !s.is_empty())
+            .filter(|s| !s.is_empty() && is_valid_filename(s))
             .collect();
+
+        // FIXED: Skip if no valid names after filtering
+        if names.is_empty() {
+            if debug {
+                println!("[DEBUG] No valid names found after split, skipping");
+            }
+            continue;
+        }
 
         if path_stack.is_empty() {
             // Root
